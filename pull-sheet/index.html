@@ -113,6 +113,10 @@ title: Update Spreadsheet
                     return selectedPositions.length === 0 || selectedPositions.includes(row.Position);
                 });
                 showFilteredInfo(filteredData);
+
+                setTimeout(function() {
+                document.getElementById('source').scrollTop = 0;
+            }, 0.2);
             }
         });
     }
