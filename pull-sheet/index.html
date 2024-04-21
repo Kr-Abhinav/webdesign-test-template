@@ -11,31 +11,98 @@ title: Update Spreadsheet
 <script type="text/javascript" src="github.js"></script>
 
 <h1>Update</h1>
-<select id="positionFilter">
-    <option value="all">All Positions</option>
-    <option value="PhD student">PhD student</option>
-    <option value="Intern">Intern</option>
-    <option value="Undergraduate student">Undergraduate student</option>
-    <option value="Research Assistant">Research Assistant</option>
-    <option value="MS(R) student">MS(R) student</option>
-    <option value="MSc student">MSc student</option>
-</select>
+<!-- Filter dropdown menu with Apply button -->
+<!-- Filter dropdown menu with Apply button -->
+<!-- Filter dropdown menu with Apply button -->
+<div id="filterContainer" style="margin-bottom: 20px;">
+    <button id="filterButton">Filter</button>
+    <div id="filterDropdown" style="position: absolute; background-color: white; border: 1px solid #ccc; padding: 5px; z-index: 1;">
+        <label><input type="checkbox" value="PhD student">PhD student</label><br>
+        <label><input type="checkbox" value="Intern">Intern</label><br>
+        <label><input type="checkbox" value="Undergraduate student">Undergraduate student</label><br>
+        <label><input type="checkbox" value="Research Assistant">Research Assistant</label><br>
+        <label><input type="checkbox" value="MS(R) student">MS(R) student</label><br>
+        <label><input type="checkbox" value="MSc student">MSc student</label><br>
+        <button id="applyButton">Apply</button>
+    </div>
+</div>
+
+<textarea cols="10" rows="5" id="source" style="border: 1px solid #000; width: 100%; height: 500px; margin-bottom: 20px;"></textarea>
+
+<style>
+    #filterContainer {
+        position: relative;
+        display: inline-block;
+    }
+
+    #filterButton {
+        background-color: #4CAF50;
+        color: white;
+        padding: 10px 15px;
+        border: none;
+        cursor: pointer;
+        border-radius: 5px;
+    }
+
+    #filterDropdown {
+        display: none;
+        min-width: 200px;
+        box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+        border-radius: 5px;
+        padding: 10px;
+    }
+
+    #filterDropdown label {
+        display: block;
+        margin-bottom: 5px;
+    }
+
+    #filterDropdown button {
+        background-color: #4CAF50;
+        color: white;
+        padding: 8px 12px;
+        border: none;
+        cursor: pointer;
+        border-radius: 5px;
+        margin-top: 10px;
+    }
+
+    #filterDropdown button:hover {
+        background-color: #45a049;
+    }
+</style>
+
+
+
+
+<!-- <textarea cols="10" rows="5" id="source" style="border: 1px solid #000; width: 100%; height: 500px;"></textarea> -->
 
 <script type="text/javascript">
 
     // URL for the TSV file
     var tsvURL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSmbxH5Ht8VVSH7d255fpfmuQ4txgw8nTzxsIJsXgJAdLe6jd_r-zomkND043i-pq0tWiZai-63NcOv/pub?output=tsv';
 
-    // Add event listener to the position filter dropdown
-    document.getElementById('positionFilter').addEventListener('change', function() {
-        filterData(this.value);
+    // Add event listener to the filter button
+    document.getElementById('filterButton').addEventListener('click', function() {
+        document.getElementById('filterDropdown').style.display = 'block';
     });
 
+    // Add event listener to the apply button
+    document.getElementById('applyButton').addEventListener('click', function() {
+        toggleDropdownDisplay();
+        filterData(getSelectedOptions());
+    });
+
+    // Trigger filtering with no options selected when the page loads
     window.addEventListener('DOMContentLoaded', function() {
-        filterData('all');
+        filterData([]);
     });
 
-    function filterData(selectedPosition) {
+    function toggleDropdownDisplay() {
+        document.getElementById('filterDropdown').style.display = 'none';
+    }
+
+    function filterData(selectedPositions) {
         Papa.parse(tsvURL, {
             download: true,
             header: true,
@@ -43,7 +110,7 @@ title: Update Spreadsheet
             complete: function(results) {
                 var data = results.data;
                 var filteredData = data.filter(function(row) {
-                    return selectedPosition === 'all' || row.Position === selectedPosition;
+                    return selectedPositions.length === 0 || selectedPositions.includes(row.Position);
                 });
                 showFilteredInfo(filteredData);
             }
@@ -63,6 +130,11 @@ title: Update Spreadsheet
         document.getElementById('source').value = $yaml_dump;
     }
 
-</script>
+    function getSelectedOptions() {
+        var selectedOptions = Array.from(document.querySelectorAll('#filterDropdown input[type="checkbox"]:checked')).map(function(checkbox) {
+            return checkbox.value;
+        });
+        return selectedOptions;
+    }
 
-<textarea cols="10" rows="5" id="source" style="border: 1px solid #000; width: 100%; height: 500px;"></textarea>
+</script>
